@@ -1,8 +1,10 @@
 import 'dotenv/config'
 import express from 'express'
 import { connectToMongo, db } from './db/mongo.js'
+import helmet from 'helmet'
 
 const app = express()
+app.use(helmet())
 
 // Declare a route
 app.get('/', async (request, response) => {
