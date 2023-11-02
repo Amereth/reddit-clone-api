@@ -15,10 +15,6 @@
     "jsx": "preserve",
     "incremental": true,
     "noUncheckedIndexedAccess": true,
-    "baseUrl": ".",
-    "paths": {
-      "~/*": ["./src/*"]
-    },
     "plugins": [{ "name": "next" }]
   },
   "include": [
@@ -30,5 +26,8 @@
     "**/*.mjs",
     ".next/types/**/*.ts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules"],
+  "ts-node": {
+    "require": ["ts-node/register", "tsconfig-paths/register"]
+  }
 }
