@@ -1,4 +1,6 @@
 import { StrictAuthProp } from '@clerk/clerk-sdk-node'
+import bodyParser from 'body-parser'
+import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import 'dotenv/config'
 import express, { NextFunction, Request, Response } from 'express'
@@ -18,6 +20,8 @@ const app = express()
 
 app.use(helmet())
 app.use(cors({ origin: 'http://localhost:3000' }))
+app.use(bodyParser.json())
+app.use(cookieParser())
 
 app.use(router)
 
