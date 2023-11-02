@@ -32,7 +32,7 @@ app.use((error: unknown, req: Request, res: Response, next: NextFunction) => {
     res.send(createError(401, 'Unauthenticated'))
   }
 
-  res.status(500).send('Something broke!')
+  res.status(500).send(error)
 })
 
 app.listen(8080, () => {
