@@ -1,18 +1,16 @@
+import { StrictAuthProp } from '@clerk/clerk-sdk-node'
+import cors from 'cors'
 import 'dotenv/config'
 import express, { NextFunction, Request, Response } from 'express'
-import { connectToMongo, db } from './db/mongo.js'
-import helmet from 'helmet'
 import 'express-async-errors'
-import cors from 'cors'
-import {
-  ClerkExpressRequireAuth,
-  RequireAuthProp,
-  LooseAuthProp,
-} from '@clerk/clerk-sdk-node'
+import helmet from 'helmet'
+import createError from 'http-errors'
+import { connectToMongo } from './db/mongo.js'
+import { router } from './router.js'
 
 declare global {
   namespace Express {
-    interface Request extends LooseAuthProp {}
+    interface Request extends StrictAuthProp {}
   }
 }
 
@@ -21,17 +19,15 @@ const app = express()
 app.use(helmet())
 app.use(cors({ origin: 'http://localhost:3000' }))
 
-// Declare a route
-app.get('/', async (request, response) => {
-  console.log('app.get ~ request:', request)
-
-  const data = await db.collection('posts').find().toArray()
-  console.log('data:', data)
-  response.send(data)
-})
+app.use(router)
 
 app.use((error: unknown, req: Request, res: Response, next: NextFunction) => {
   console.log('ERROR', error)
+
+  if (error instanceof Error && error.message === 'Unauthenticated') {
+    res.send(createError(401, 'Unauthenticated'))
+  }
+
   res.status(500).send('Something broke!')
 })
 
