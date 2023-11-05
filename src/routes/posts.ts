@@ -15,10 +15,17 @@ import { sanitizeResponse } from '../utils/sanitizeResponse.js'
 export const postsRouter = Router()
 
 const post = z.object({
-  userId: z.string(),
   title: z.string(),
   body: z.string(),
   hashtags: z.optional(z.array(z.string())),
+  likes: z.number().default(0),
+  dislikes: z.number().default(0),
+  author: z.object({
+    userId: z.string(),
+    firstName: z.nullable(z.string()),
+    lastName: z.nullable(z.string()),
+    imageUrl: z.string().url(),
+  }),
   createdAt: z.date().optional(),
   updatedAt: z.date().optional(),
 })
@@ -51,7 +58,14 @@ postsRouter.post(
 
     const response = await db.collection<Post>(Collections.Posts).insertOne({
       ...body,
-      userId: user.id,
+      likes: 0,
+      dislikes: 0,
+      author: {
+        userId: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        imageUrl: user.imageUrl,
+      },
       createdAt,
       updatedAt: createdAt,
     })
