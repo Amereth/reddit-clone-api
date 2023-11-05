@@ -1,6 +1,6 @@
 import { WithId } from 'mongodb'
 
-type SanitizedResponse<T> = T & {
+export type SanitizedResponse<T> = T & {
   id: string
 }
 
