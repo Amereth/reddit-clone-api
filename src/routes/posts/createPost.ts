@@ -6,7 +6,7 @@ import { z } from 'zod'
 import { Collections } from '../../db/collections.js'
 import { db } from '../../db/mongo.js'
 import { getZodSchemaKeys } from '../../utils/getZodSchemaKeys.js'
-import { post, Post } from './index.js'
+import { post, Post } from './types.js'
 
 const requestBody = post.pick({ title: true, body: true, hashtags: true })
 

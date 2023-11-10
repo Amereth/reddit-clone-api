@@ -3,28 +3,13 @@ import {
   ClerkExpressWithAuth,
 } from '@clerk/clerk-sdk-node'
 import { Router } from 'express'
-import { z } from 'zod'
+import { createPost } from './createPost.js'
 import { getPosts } from './getPosts.js'
+import { dislikePost, likePost } from './likeDislikePost.js'
 
 export const postsRouter = Router()
 
 postsRouter.get('/', ClerkExpressWithAuth(), getPosts)
-postsRouter.post('/', ClerkExpressRequireAuth(), getPosts)
-
-export const post = z.object({
-  title: z.string(),
-  body: z.string(),
-  hashtags: z.optional(z.array(z.string())),
-  likes: z.number().default(0),
-  dislikes: z.number().default(0),
-  author: z.object({
-    userId: z.string(),
-    firstName: z.nullable(z.string()),
-    lastName: z.nullable(z.string()),
-    imageUrl: z.string().url(),
-  }),
-  createdAt: z.date().optional(),
-  updatedAt: z.date().optional(),
-})
-
-export type Post = z.infer<typeof post>
+postsRouter.post('/', ClerkExpressRequireAuth(), createPost)
+postsRouter.put('/:postId/like', ClerkExpressRequireAuth(), likePost)
+postsRouter.put('/:postId/dislike', ClerkExpressRequireAuth(), dislikePost)
