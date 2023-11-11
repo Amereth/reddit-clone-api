@@ -28,8 +28,8 @@ export const createPost = async (
 
   const response = await db.collection<Post>(Collections.Posts).insertOne({
     ...body,
-    likes: 0,
-    dislikes: 0,
+    likes: [],
+    dislikes: [],
     author: {
       userId: user.id,
       firstName: user.firstName,

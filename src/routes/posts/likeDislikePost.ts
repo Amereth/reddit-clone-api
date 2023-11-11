@@ -1,39 +1,57 @@
-import { WithAuthProp } from '@clerk/clerk-sdk-node'
+import clerkClient, { WithAuthProp } from '@clerk/clerk-sdk-node'
 import { Request, Response } from 'express'
 import { ObjectId } from 'mongodb'
 import { Collections } from '../../db/collections.js'
 import { db } from '../../db/mongo.js'
 import { Post } from './types.js'
 
-export const likePost = async (req: WithAuthProp<Request>, res: Response) => {
-  const { postId } = req.params
+type CreateHandlerArg =
+  | {
+      primaryAction: 'likes'
+      secondaryAction: 'dislikes'
+    }
+  | {
+      primaryAction: 'dislikes'
+      secondaryAction: 'likes'
+    }
 
-  const dbResponse = await db.collection<Post>(Collections.Posts).updateOne(
-    { _id: new ObjectId(postId) },
-    {
-      $inc: {
-        likes: 1,
+const createHandler =
+  ({ primaryAction, secondaryAction }: CreateHandlerArg) =>
+  async (req: WithAuthProp<Request>, res: Response) => {
+    const { postId } = req.params
+
+    const user = await clerkClient.users.getUser(req.auth?.userId)
+
+    // if user has already liked post, remove like
+    const dbResponse = await db.collection<Post>(Collections.Posts).updateOne(
+      {
+        _id: new ObjectId(postId),
+        [primaryAction]: { $in: [user.id] },
       },
-    },
-  )
+      { $pull: { [primaryAction]: user.id } },
+    )
 
-  res.send(dbResponse)
-}
+    // if user has not liked post, add like and remove dislike
+    if (dbResponse.modifiedCount === 0) {
+      const dbResponse = await db.collection<Post>(Collections.Posts).updateOne(
+        { _id: new ObjectId(postId) },
+        {
+          $push: { [primaryAction]: user.id },
+          $pull: { [secondaryAction]: user.id },
+        },
+      )
+      res.send(dbResponse)
+    }
 
-export const dislikePost = async (
-  req: WithAuthProp<Request>,
-  res: Response,
-) => {
-  const { postId } = req.params
+    res.send(dbResponse)
+  }
 
-  const dbResponse = await db.collection<Post>(Collections.Posts).updateOne(
-    { _id: new ObjectId(postId) },
-    {
-      $inc: {
-        dislikes: 1,
-      },
-    },
-  )
+export const likePost = createHandler({
+  primaryAction: 'likes',
+  secondaryAction: 'dislikes',
+})
 
-  res.send(dbResponse)
-}
+export const dislikePost = createHandler({
+  primaryAction: 'dislikes',
+  secondaryAction: 'likes',
+})

@@ -4,8 +4,8 @@ export const post = z.object({
   title: z.string(),
   body: z.string(),
   hashtags: z.optional(z.array(z.string())),
-  likes: z.number().default(0),
-  dislikes: z.number().default(0),
+  likes: z.array(z.string()).default([]),
+  dislikes: z.array(z.string()).default([]),
   author: z.object({
     userId: z.string(),
     firstName: z.nullable(z.string()),
