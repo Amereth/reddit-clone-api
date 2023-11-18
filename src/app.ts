@@ -32,7 +32,11 @@ app.use((error: unknown, req: Request, res: Response, next: NextFunction) => {
     res.send(createError(401, 'Unauthenticated'))
   }
 
-  res.status(500).send(error)
+  if (error instanceof Error) {
+    res.status(500).send(createError(500, error.message))
+  }
+
+  res.status(500).send('Unknown error')
 })
 
 app.listen(8080, () => {

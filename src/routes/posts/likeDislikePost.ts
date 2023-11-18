@@ -1,6 +1,7 @@
 import clerkClient, { WithAuthProp } from '@clerk/clerk-sdk-node'
 import { Request, Response } from 'express'
 import { ObjectId } from 'mongodb'
+import { z } from 'zod'
 import { Collections } from '../../db/collections.js'
 import { db } from '../../db/mongo.js'
 import { Post } from './types.js'
@@ -15,9 +16,17 @@ type CreateHandlerArg =
       secondaryAction: 'likes'
     }
 
+const params = z.object({
+  postId: z.string(),
+})
+
+type Params = z.infer<typeof params>
+
 const createHandler =
   ({ primaryAction, secondaryAction }: CreateHandlerArg) =>
-  async (req: WithAuthProp<Request>, res: Response) => {
+  async (req: WithAuthProp<Request<Params>>, res: Response) => {
+    params.parse(req.params)
+
     const { postId } = req.params
 
     const user = await clerkClient.users.getUser(req.auth?.userId)
