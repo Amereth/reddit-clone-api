@@ -7,6 +7,9 @@ import express, { NextFunction, Request, Response } from 'express'
 import 'express-async-errors'
 import helmet from 'helmet'
 import createError from 'http-errors'
+import morgan from 'morgan'
+import path, { dirname } from 'path'
+import { fileURLToPath } from 'url'
 import { connectToMongo } from './db/mongo.js'
 import { router } from './router.js'
 
@@ -17,12 +20,16 @@ declare global {
 }
 
 const app = express()
-
-app.use(helmet())
 app.use(cors({ origin: 'http://localhost:3000' }))
+
+app.use(
+  express.static(path.join(dirname(fileURLToPath(import.meta.url)), 'public')),
+)
+app.use(helmet())
+
 app.use(bodyParser.json())
 app.use(cookieParser())
-
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms'))
 app.use(router)
 
 app.use((error: unknown, req: Request, res: Response, next: NextFunction) => {
