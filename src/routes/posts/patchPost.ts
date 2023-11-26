@@ -21,14 +21,8 @@ type RequestBody = z.infer<typeof requestBody>
 
 type ResponseBody = SanitizedResponse<Post> | HttpError<404>
 
-const params = z.object({
-  postId: z.string(),
-})
-
-type Params = z.infer<typeof params>
-
 export const patchPost = async (
-  req: RequireAuthProp<Request<Params, ResponseBody, RequestBody>>,
+  req: RequireAuthProp<Request<{ postId: string }, ResponseBody, RequestBody>>,
   res: Response<ResponseBody>,
 ) => {
   requestBody.parse(req.body)

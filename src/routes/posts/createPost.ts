@@ -19,7 +19,6 @@ export const createPost = async (
   req: RequireAuthProp<Request<unknown, ResponseBody, RequestBody>>,
   res: Response<ResponseBody>,
 ) => {
-  console.log('req.body', req.file)
   requestBody.parse(req.body)
 
   const user = await clerkClient.users.getUser(req.auth?.userId)

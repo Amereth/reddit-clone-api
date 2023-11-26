@@ -5,6 +5,7 @@ import {
 import { Router } from 'express'
 import { uploads } from '../../utils/multer.js'
 import { createPost } from './createPost.js'
+import { deletePost } from './deletePost.js'
 import { getPost } from './getPost.js'
 import { getPosts } from './getPosts.js'
 import { dislikePost, likePost } from './likeDislikePost.js'
@@ -23,3 +24,4 @@ postsRouter.get('/:postId', ClerkExpressWithAuth(), getPost)
 postsRouter.patch('/:postId', ClerkExpressRequireAuth(), patchPost)
 postsRouter.put('/:postId/like', ClerkExpressRequireAuth(), likePost)
 postsRouter.put('/:postId/dislike', ClerkExpressRequireAuth(), dislikePost)
+postsRouter.delete('/:postId', ClerkExpressRequireAuth(), deletePost)

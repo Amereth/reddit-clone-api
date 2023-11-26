@@ -29,14 +29,14 @@ app.use(helmet())
 
 app.use(bodyParser.json())
 app.use(cookieParser())
-app.use(morgan(':method :url :status :res[content-length] - :response-time ms'))
+app.use(morgan('dev'))
 app.use(router)
 
 app.use((error: unknown, req: Request, res: Response, next: NextFunction) => {
   console.log('ERROR', error)
 
   if (error instanceof Error && error.message === 'Unauthenticated') {
-    res.send(createError(401, 'Unauthenticated'))
+    res.status(401).send(createError(401, 'Unauthenticated'))
   }
 
   if (error instanceof Error) {
