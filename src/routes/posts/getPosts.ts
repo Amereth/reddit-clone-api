@@ -5,8 +5,16 @@ import { db } from '../../db/mongo.js'
 import { sanitizeResponse } from '../../utils/sanitizeResponse.js'
 import { Post } from './types.js'
 
-export const getPosts = async (req: WithAuthProp<Request>, res: Response) => {
-  const data = await db.collection<Post>(Collections.Posts).find().toArray()
+export const getPosts = async (
+  req: WithAuthProp<Request<{ hashtag?: string }>>,
+  res: Response,
+) => {
+  const { hashtag } = req.query
+
+  const data = await db
+    .collection<Post>(Collections.Posts)
+    .find({ hashtags: hashtag ? hashtag : { $exists: true } })
+    .toArray()
 
   const responseData = data.map((post) => ({
     ...post,
