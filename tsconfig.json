@@ -28,6 +28,7 @@
   ],
   "exclude": ["node_modules", "migrations"],
   "ts-node": {
+    "esm": true,
     "require": ["ts-node/register", "tsconfig-paths/register"]
   }
 }
