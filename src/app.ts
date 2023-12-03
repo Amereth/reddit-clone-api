@@ -14,6 +14,7 @@ import { connectToMongo } from './db/mongo.js'
 import { router } from './router.js'
 
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
     interface Request extends StrictAuthProp {}
   }
