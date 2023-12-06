@@ -33,7 +33,7 @@ app.use(cookieParser())
 app.use(morgan('dev'))
 app.use(router)
 
-app.use((error: unknown, req: Request, res: Response, next: NextFunction) => {
+app.use((error: unknown, req: Request, res: Response, _next: NextFunction) => {
   console.log('ERROR', error)
 
   if (error instanceof Error && error.message === 'Unauthenticated') {
