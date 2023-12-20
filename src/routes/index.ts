@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { postsRouter } from './routes/posts/index.js'
+import { postsRouter } from './posts/index.js'
 
 export const router = Router()
 

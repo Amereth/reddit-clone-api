@@ -22,6 +22,7 @@ export const createPost = async (
   requestBody.parse(req.body)
 
   const user = await clerkClient.users.getUser(req.auth?.userId)
+  console.log('req.auth?.userId:', req.auth?.userId)
 
   const body = pick(getZodSchemaKeys(requestBody), req.body)
 
