@@ -3,8 +3,9 @@ import { Request, Response } from 'express'
 import { ObjectId, WithId } from 'mongodb'
 import { Collections } from '../../db/collections.js'
 import { db } from '../../db/mongo.js'
+import { Post } from '../../db/types/posts.js'
 import { sanitizeResponse } from '../../utils/sanitizeResponse.js'
-import { Post, PostReturned } from './types.js'
+import { PostReturned } from './types.js'
 
 type Params = {
   postId: string
