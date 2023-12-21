@@ -4,8 +4,15 @@ import { WebSocketServer } from 'ws'
 import { z } from 'zod'
 import { Collections } from '../db/collections.js'
 import { db } from '../db/mongo.js'
+import { ChatMessage } from '../db/types/chat.js'
 import { sanitizeResponse } from '../utils/sanitizeResponse.js'
-import { verifyJwt } from '../utils/verifyJwt.js'
+import { WebSocketMessenger } from '../utils/webSockets/WebSocketMessenger.js'
+import { verifyJwt } from '../utils/webSockets/verifyJwt.js'
+
+const incomingMessage = z.object({
+  type: z.enum(['auth', 'message']),
+  content: z.string(),
+})
 
 export const createWebSocketServer = (expressServer: Server) => {
   const websocketServer = new WebSocketServer({
@@ -22,9 +29,13 @@ export const createWebSocketServer = (expressServer: Server) => {
   websocketServer.on('connection', (socket) => {
     let user: User
 
+    const messenger = new WebSocketMessenger(socket, websocketServer)
+
     socket.on('message', async (jsonMessage) => {
       try {
-        const message = zMessage.parse(JSON.parse(jsonMessage.toString()))
+        const message = incomingMessage.parse(
+          JSON.parse(jsonMessage.toString()),
+        )
 
         if (message.type === 'auth') {
           verifyJwt(message.content, async (error, decoded) => {
@@ -34,41 +45,28 @@ export const createWebSocketServer = (expressServer: Server) => {
               decoded?.sub as string,
             )
 
-            if (!_user) throw new Error('User not found')
+            if (!_user) throw new Error('user not found')
             user = _user
-
-            const messageHistory = await db
-              .collection(Collections.ChatMessages)
-              .find()
-              .toArray()
-
-            const message = {
-              type: 'history',
-              content: sanitizeResponse(messageHistory),
-            }
-
-            socket.send(JSON.stringify(message))
           })
 
+          const history = await db
+            .collection<ChatMessage>(Collections.ChatMessages)
+            .find()
+            .toArray()
+
+          messenger.sendHistory(sanitizeResponse(history))
           return
         }
 
         if (message.type === 'message') {
-          console.log('socket.on ~ message:', message)
-
           if (!user) {
-            socket.send(
-              JSON.stringify({ type: 'error', content: 'Unauthorized' }),
-            )
-            socket.close()
+            messenger.sendError('unauthorized')
             return
           }
 
-          const timestamp = new Date().toISOString()
-
-          const dbMessage = {
+          const dbMessage: ChatMessage = {
             content: message.content,
-            createdAt: timestamp,
+            createdAt: new Date().toISOString(),
             updatedAt: null,
             deletedAt: null,
             author: {
@@ -80,49 +78,32 @@ export const createWebSocketServer = (expressServer: Server) => {
           }
 
           const dbReponse = await db
-            .collection(Collections.ChatMessages)
+            .collection<ChatMessage>(Collections.ChatMessages)
             .insertOne(dbMessage)
-          console.log('socket.on ~ dbReponse:', dbReponse)
 
           if (!dbReponse.insertedId) {
-            socket.send(
-              JSON.stringify({ type: 'error', content: 'Message not saved' }),
-            )
+            messenger.sendError('Message not saved')
             return
           }
 
-          const jsonResponse = JSON.stringify({
-            id: dbReponse.insertedId,
-            type: 'message',
-            ...dbMessage,
-          })
-
-          websocketServer.clients.forEach((client) => {
-            console.log('broadcasting to all clients')
-            client.send(jsonResponse)
-          })
+          messenger.broadcast(
+            sanitizeResponse({
+              _id: dbReponse.insertedId,
+              ...dbMessage,
+            }),
+          )
         }
       } catch (error) {
-        let errorMessage
-        if (error instanceof Error) {
-          errorMessage = error.message
-        }
-        if (typeof error === 'string') {
-          errorMessage = error
-        }
+        let errorMessage = 'unknown error'
+
+        if (error instanceof Error) errorMessage = error.message
+        if (typeof error === 'string') errorMessage = error
+
         console.error('ERROR', error)
-        socket.send(JSON.stringify({ type: 'error', content: errorMessage }))
-        socket.close()
+        messenger.sendError(errorMessage)
       }
     })
   })
 
   return websocketServer
 }
-
-const zMessage = z.object({
-  type: z.enum(['auth', 'message', 'error', 'history']),
-  content: z.string(),
-})
-
-export type Message = z.infer<typeof zMessage>
