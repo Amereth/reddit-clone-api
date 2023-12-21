@@ -1,29 +1,43 @@
-import { WebSocket } from 'ws'
+import { WebSocket, WebSocketServer } from 'ws'
 import { z } from 'zod'
 import { chatMessage, ChatMessage } from '../../db/types/chat.js'
 
+export const OutgoingErrorMessage = z.object({
+  type: z.literal('error'),
+  content: z.string(),
+})
+
+export const OutgoingHistoryMessage = z.object({
+  type: z.literal('history'),
+  content: z.array(chatMessage),
+})
+
+export const OutgoingBroadcastMessage = z.object({
+  type: z.literal('error'),
+  content: z.string(),
+})
+
+export const OutgoingSimpleMessage = z.object({
+  type: z.literal('message'),
+  content: chatMessage,
+})
+
 export const outgoingMessage = z.union([
-  z.object({
-    type: z.literal('message'),
-    content: z.string(),
-  }),
-  z.object({
-    type: z.literal('error'),
-    content: z.string(),
-  }),
-  z.object({
-    type: z.literal('history'),
-    content: z.array(chatMessage),
-  }),
+  OutgoingErrorMessage,
+  OutgoingHistoryMessage,
+  OutgoingBroadcastMessage,
+  OutgoingSimpleMessage,
 ])
 
 export type OutgoingMessage = z.infer<typeof outgoingMessage>
 
 export class WebSocketMessenger {
   _socket: WebSocket
+  _wsServer: WebSocketServer
 
-  constructor(socket: WebSocket) {
+  constructor(socket: WebSocket, wsServer: WebSocketServer) {
     this._socket = socket
+    this._wsServer = wsServer
   }
 
   validateMessage = (message: OutgoingMessage) => {
@@ -35,22 +49,37 @@ export class WebSocketMessenger {
     return this
   }
 
-  send = (message: OutgoingMessage) => {
-    this._socket.send(JSON.stringify(message))
+  send = (message: OutgoingMessage, client?: WebSocket) => {
+    const socket = client ?? this._socket
+    socket.send(JSON.stringify(message))
   }
 
-  sendError(content: string) {
-    const outgoingMessage = { type: 'error', content } as const
-    if (this.validateMessage(outgoingMessage)) this.send(outgoingMessage)
+  sendError(error: string, client?: WebSocket) {
+    const outgoingMessage = { type: 'error', content: error } as const
+    if (this.validateMessage(outgoingMessage)) {
+      this.send(outgoingMessage, client)
+    }
   }
 
-  sendMessage(content: string) {
-    const outgoingMessage = { type: 'message', content } as const
-    if (this.validateMessage(outgoingMessage)) this.send(outgoingMessage)
+  sendMessage(message: ChatMessage, client?: WebSocket) {
+    const outgoingMessage = { type: 'message', content: message } as const
+    if (this.validateMessage(outgoingMessage)) {
+      this.send(outgoingMessage, client)
+    }
   }
 
-  sendHistory(content: ChatMessage[]) {
-    const outgoingMessage = { type: 'history', content } as const
-    if (this.validateMessage(outgoingMessage)) this.send(outgoingMessage)
+  sendHistory(history: ChatMessage[], client?: WebSocket) {
+    const outgoingMessage = { type: 'history', content: history } as const
+    if (this.validateMessage(outgoingMessage)) {
+      this.send(outgoingMessage, client)
+    }
+  }
+
+  broadcast(message: ChatMessage) {
+    const outgoingMessage = { type: 'message', content: message } as const
+
+    this._wsServer.clients.forEach((client) => {
+      this.send(outgoingMessage, client)
+    })
   }
 }
