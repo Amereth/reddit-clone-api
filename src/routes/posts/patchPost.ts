@@ -6,12 +6,12 @@ import { pick } from 'rambda'
 import { z } from 'zod'
 import { Collections } from '../../db/collections.js'
 import { db } from '../../db/mongo.js'
+import { post, Post } from '../../db/types/posts.js'
 import { getZodSchemaKeys } from '../../utils/getZodSchemaKeys.js'
 import {
   SanitizedResponse,
   sanitizeResponse,
 } from '../../utils/sanitizeResponse.js'
-import { Post, post } from './types.js'
 
 const requestBody = post
   .pick({ title: true, body: true, hashtags: true })

@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { author } from './author.js'
 
 export const post = z.object({
   title: z.string(),
@@ -7,13 +8,8 @@ export const post = z.object({
   likes: z.array(z.string()).default([]),
   dislikes: z.array(z.string()).default([]),
   imageUrl: z.string().optional(),
-  author: z.object({
-    userId: z.string(),
-    firstName: z.nullable(z.string()),
-    lastName: z.nullable(z.string()),
-    imageUrl: z.string().url(),
-  }),
-  createdAt: z.date().optional(),
+  author,
+  createdAt: z.date(),
   updatedAt: z.date().optional(),
   // comments: z.array(
   //   z.object({
