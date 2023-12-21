@@ -19,7 +19,7 @@ export const outgoingMessage = z.union([
 
 export type OutgoingMessage = z.infer<typeof outgoingMessage>
 
-export class WebSocketMesseger {
+export class WebSocketMessenger {
   _socket: WebSocket
 
   constructor(socket: WebSocket) {
