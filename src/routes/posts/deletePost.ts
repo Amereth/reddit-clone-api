@@ -7,7 +7,7 @@ import path, { dirname } from 'path'
 import { fileURLToPath } from 'url'
 import { Collections } from '../../db/collections.js'
 import { db } from '../../db/mongo.js'
-import { Post } from './types.js'
+import { Post } from '../../db/types/posts.js'
 
 export const deletePost = async (
   req: RequireAuthProp<Request<{ postId: string }>>,

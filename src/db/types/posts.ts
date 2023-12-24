@@ -11,20 +11,20 @@ export const post = z.object({
   author,
   createdAt: z.date(),
   updatedAt: z.date().optional(),
-  // comments: z.array(
-  //   z.object({
-  //     body: z.string(),
-  //     date: z.date(),
-  //     author: z.object({
-  //       userId: z.string(),
-  //       firstName: z.nullable(z.string()),
-  //       lastName: z.nullable(z.string()),
-  //       imageUrl: z.string().url(),
-  //     }),
-  //     likes: z.array(z.string()).default([]),
-  //     dislikes: z.array(z.string()).default([]),
-  //   }),
-  // ),
+  comments: z.array(
+    z.object({
+      body: z.string(),
+      date: z.date(),
+      author: z.object({
+        userId: z.string(),
+        firstName: z.nullable(z.string()),
+        lastName: z.nullable(z.string()),
+        imageUrl: z.string().url(),
+      }),
+      likes: z.array(z.string()).default([]),
+      dislikes: z.array(z.string()).default([]),
+    }),
+  ),
 })
 
 export type Post = z.infer<typeof post>

@@ -4,7 +4,7 @@ import { ObjectId } from 'mongodb'
 import { z } from 'zod'
 import { Collections } from '../../db/collections.js'
 import { db } from '../../db/mongo.js'
-import { Post } from './types.js'
+import { Post } from '../../db/types/posts.js'
 
 type CreateHandlerArg =
   | {

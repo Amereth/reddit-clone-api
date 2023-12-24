@@ -3,8 +3,8 @@ import dayjs from 'dayjs'
 import { Request, Response } from 'express'
 import { Collections } from '../../db/collections.js'
 import { db } from '../../db/mongo.js'
+import { Post } from '../../db/types/posts.js'
 import { sanitizeResponse } from '../../utils/sanitizeResponse.js'
-import { Post } from './types.js'
 
 type Query = {
   hashtag?: string
