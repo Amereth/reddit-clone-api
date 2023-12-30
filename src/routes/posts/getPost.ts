@@ -1,11 +1,10 @@
 import { WithAuthProp } from '@clerk/clerk-sdk-node'
 import { Request, Response } from 'express'
-import { ObjectId, WithId } from 'mongodb'
+import { ObjectId } from 'mongodb'
 import { Collections } from '../../db/collections.js'
 import { db } from '../../db/mongo.js'
 import { Post } from '../../db/types/posts.js'
 import { sanitizeResponse } from '../../utils/sanitizeResponse.js'
-import { PostReturned } from './types.js'
 
 type Params = {
   postId: string
@@ -21,7 +20,7 @@ export const getPost = async (
     .limit(1)
     .toArray()
 
-  const posts = data.map<WithId<PostReturned>>((post) => ({
+  const posts = data.map((post) => ({
     ...post,
     likes: {
       total: post.likes.length,

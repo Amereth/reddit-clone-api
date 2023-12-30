@@ -25,8 +25,6 @@ export const createPost = async (
 
   const body = pick(getZodSchemaKeys(requestBody), req.body)
 
-  const createdAt = new Date()
-
   const imageName =
     req.file?.originalname && sanitizeString(req.file?.originalname)
 
@@ -45,8 +43,7 @@ export const createPost = async (
       lastName: user.lastName,
       imageUrl: user.imageUrl,
     },
-    createdAt,
-    updatedAt: createdAt,
+    createdAt: new Date(),
   })
 
   res.status(201).send(response)

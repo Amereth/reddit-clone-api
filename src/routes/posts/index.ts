@@ -4,6 +4,7 @@ import {
 } from '@clerk/clerk-sdk-node'
 import { Router } from 'express'
 import { uploads } from '../../utils/multer.js'
+import { commentsRouter } from './comments/index.js'
 import { createPost } from './createPost.js'
 import { deletePost } from './deletePost.js'
 import { getPost } from './getPost.js'
@@ -13,13 +14,16 @@ import { patchPost } from './patchPost.js'
 
 export const postsRouter = Router()
 
-postsRouter.get('/', ClerkExpressWithAuth(), getPosts)
+postsRouter.use('/:postId/comment', commentsRouter)
+
 postsRouter.post(
   '/',
   ClerkExpressRequireAuth(),
   uploads.single('image'),
   createPost,
 )
+
+postsRouter.get('/', ClerkExpressWithAuth(), getPosts)
 postsRouter.get('/:postId', ClerkExpressWithAuth(), getPost)
 postsRouter.patch('/:postId', ClerkExpressRequireAuth(), patchPost)
 postsRouter.put('/:postId/like', ClerkExpressRequireAuth(), likePost)
