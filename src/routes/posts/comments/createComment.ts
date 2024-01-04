@@ -32,8 +32,8 @@ export const createComment = async (
         comments: {
           body: req.body.body,
           createdAt: new Date(),
-          likes: [],
-          dislikes: [],
+          likes: 0,
+          dislikes: 0,
           author: {
             userId: user.id,
             firstName: user.firstName,

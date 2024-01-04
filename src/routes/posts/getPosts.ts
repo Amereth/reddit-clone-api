@@ -54,19 +54,7 @@ export const getPosts = async (
   const responseData = {
     total: data[0]?.total[0]?.total,
     perPage: Number(perPage),
-    data: first.data
-      .map((post) => ({
-        ...post,
-        likes: {
-          total: post.likes.length,
-          isLiked: post.likes.includes(req.auth?.userId),
-        },
-        dislikes: {
-          total: post.dislikes.length,
-          isLiked: post.dislikes.includes(req.auth?.userId),
-        },
-      }))
-      .map(sanitizeResponse),
+    data: first.data.map(sanitizeResponse),
   }
 
   res.send(responseData)

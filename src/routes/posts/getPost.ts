@@ -1,5 +1,6 @@
 import { WithAuthProp } from '@clerk/clerk-sdk-node'
 import { Request, Response } from 'express'
+import createHttpError from 'http-errors'
 import { ObjectId } from 'mongodb'
 import { Collections } from '../../db/collections.js'
 import { db } from '../../db/mongo.js'
@@ -20,21 +21,9 @@ export const getPost = async (
     .limit(1)
     .toArray()
 
-  const posts = data.map((post) => ({
-    ...post,
-    likes: {
-      total: post.likes.length,
-      isLiked: post.likes.includes(req.auth?.userId),
-    },
-    dislikes: {
-      total: post.dislikes.length,
-      isLiked: post.dislikes.includes(req.auth?.userId),
-    },
-  }))
+  const post = data[0]
 
-  const returnedPost = posts[0]
+  if (!post) res.status(404).send(createHttpError(404, 'post not found'))
 
-  if (!returnedPost) res.status(404).send({ message: 'Post not found' })
-
-  res.send(returnedPost && sanitizeResponse(returnedPost))
+  res.send(post && sanitizeResponse(post))
 }
