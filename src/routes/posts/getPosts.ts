@@ -14,10 +14,10 @@ type Query = {
 }
 
 export const getPosts = async (
-  req: WithAuthProp<Request<Query>>,
+  req: WithAuthProp<Request<unknown, unknown, unknown, Query>>,
   res: Response,
 ) => {
-  const { hashtag, date, page = '1', perPage = '3' } = req.query as Query
+  const { hashtag, date, page = '1', perPage = '3' } = req.query
 
   const lteDate = dayjs(date).add(1, 'day').toDate()
 
