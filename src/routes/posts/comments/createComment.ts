@@ -24,9 +24,7 @@ export const createComment = async (
   const { postId } = req.params
 
   const dbResponse = await db.collection(Collections.Posts).updateOne(
-    {
-      _id: new ObjectId(postId),
-    },
+    { _id: new ObjectId(postId) },
     {
       $push: {
         comments: {
