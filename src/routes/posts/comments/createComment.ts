@@ -28,6 +28,7 @@ export const createComment = async (
     {
       $push: {
         comments: {
+          _id: new ObjectId(),
           body: req.body.body,
           createdAt: new Date(),
           likes: 0,

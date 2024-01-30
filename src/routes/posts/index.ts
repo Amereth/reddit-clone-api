@@ -14,7 +14,7 @@ import { patchPost } from './patchPost.js'
 
 export const postsRouter = Router()
 
-postsRouter.use('/:postId/comment', commentsRouter)
+postsRouter.use('/:postId/comments', commentsRouter)
 
 postsRouter.post(
   '/',
