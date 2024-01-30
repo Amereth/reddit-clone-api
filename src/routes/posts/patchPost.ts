@@ -8,10 +8,6 @@ import { Collections } from '../../db/collections.js'
 import { db } from '../../db/mongo.js'
 import { post, Post } from '../../db/types/posts.js'
 import { getZodSchemaKeys } from '../../utils/getZodSchemaKeys.js'
-import {
-  SanitizedResponse,
-  sanitizeResponse,
-} from '../../utils/sanitizeResponse.js'
 
 const requestBody = post
   .pick({ title: true, body: true, hashtags: true })
@@ -19,7 +15,7 @@ const requestBody = post
 
 type RequestBody = z.infer<typeof requestBody>
 
-type ResponseBody = SanitizedResponse<Post> | HttpError<404>
+type ResponseBody = Post | HttpError<404>
 
 export const patchPost = async (
   req: RequireAuthProp<Request<{ postId: string }, ResponseBody, RequestBody>>,
@@ -60,5 +56,5 @@ export const patchPost = async (
     return
   }
 
-  res.status(201).send(sanitizeResponse(post))
+  res.status(201).send(post)
 }

@@ -5,7 +5,6 @@ import { ObjectId } from 'mongodb'
 import { Collections } from '../../db/collections.js'
 import { db } from '../../db/mongo.js'
 import { Post } from '../../db/types/posts.js'
-import { sanitizeResponse } from '../../utils/sanitizeResponse.js'
 
 type Params = {
   postId: string
@@ -25,5 +24,5 @@ export const getPost = async (
 
   if (!post) res.status(404).send(createHttpError(404, 'post not found'))
 
-  res.send(post && sanitizeResponse(post))
+  res.send(post)
 }

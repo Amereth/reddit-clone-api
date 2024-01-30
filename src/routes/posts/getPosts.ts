@@ -4,7 +4,6 @@ import { Request, Response } from 'express'
 import { Collections } from '../../db/collections.js'
 import { db } from '../../db/mongo.js'
 import { Post } from '../../db/types/posts.js'
-import { sanitizeResponse } from '../../utils/sanitizeResponse.js'
 
 type Query = {
   hashtag?: string
@@ -54,7 +53,7 @@ export const getPosts = async (
   const responseData = {
     total: data[0]?.total[0]?.total,
     perPage: Number(perPage),
-    data: first.data.map(sanitizeResponse),
+    data: first.data,
   }
 
   res.send(responseData)

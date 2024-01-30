@@ -5,7 +5,6 @@ import { z } from 'zod'
 import { Collections } from '../db/collections.js'
 import { db } from '../db/mongo.js'
 import { ChatMessage } from '../db/types/chat.js'
-import { sanitizeResponse } from '../utils/sanitizeResponse.js'
 import { WebSocketMessenger } from '../utils/webSockets/WebSocketMessenger.js'
 import { verifyJwt } from '../utils/webSockets/verifyJwt.js'
 
@@ -54,7 +53,7 @@ export const createWebSocketServer = (expressServer: Server) => {
             .find()
             .toArray()
 
-          messenger.sendHistory(sanitizeResponse(history))
+          messenger.sendHistory(history)
           return
         }
 
@@ -86,12 +85,10 @@ export const createWebSocketServer = (expressServer: Server) => {
             return
           }
 
-          messenger.broadcast(
-            sanitizeResponse({
-              _id: dbReponse.insertedId,
-              ...dbMessage,
-            }),
-          )
+          messenger.broadcast({
+            _id: dbReponse.insertedId,
+            ...dbMessage,
+          })
         }
       } catch (error) {
         let errorMessage = 'unknown error'
