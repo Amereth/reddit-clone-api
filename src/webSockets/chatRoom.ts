@@ -1,5 +1,6 @@
 import { User, clerkClient } from '@clerk/clerk-sdk-node'
 import { Server } from 'http'
+import { WithId } from 'mongodb'
 import { WebSocketServer } from 'ws'
 import { z } from 'zod'
 import { Collections } from '../db/collections.js'
@@ -88,16 +89,22 @@ export const createWebSocketServer = (expressServer: Server) => {
           messenger.broadcast({
             _id: dbReponse.insertedId,
             ...dbMessage,
-          })
+          } as WithId<ChatMessage>)
         }
       } catch (error) {
-        let errorMessage = 'unknown error'
-
-        if (error instanceof Error) errorMessage = error.message
-        if (typeof error === 'string') errorMessage = error
-
         console.error('ERROR', error)
-        messenger.sendError(errorMessage)
+
+        if (error instanceof Error) {
+          messenger.sendError(error.message)
+          return
+        }
+
+        if (typeof error === 'string') {
+          messenger.sendError(error)
+          return
+        }
+
+        messenger.sendError('unknown error')
       }
     })
   })
